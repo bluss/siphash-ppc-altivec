@@ -1,18 +1,8 @@
 
-#include <errno.h>
 #include <inttypes.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "siphash.h"
-
-#define ALIGNED
-#ifdef __GNUC__
-#undef  ALIGNED
-#define ALIGNED __attribute__((aligned(16)))
-#endif
 
 typedef uint64_t u64;
 
@@ -60,11 +50,12 @@ static const u64 t_s24exp[64] = {
         return 0;\
     }
 
+#ifdef SPEEDTEST
 #define PRT(...)
-#if 1
-#undef PRT
+#define N 10000
+#else
 #define PRT(...) printf(__VA_ARGS__)
-#define TEST_IUF
+#define N 1
 #endif
 
 static int siphash_sip24_test(void)
@@ -89,6 +80,6 @@ static int siphash_run_self_tests(void)
 
 int main(void)
 {
-    int x = 1;
+    int x = N;
     while (x--) siphash_run_self_tests();
 }
