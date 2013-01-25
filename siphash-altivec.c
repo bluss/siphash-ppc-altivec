@@ -139,7 +139,7 @@ u64 siphash_2_4(const void *in, size_t len, const unsigned char key[16])
     vu8 byteswap_64 = vec_xor(vec_lvsl(0, (u32 *)NULL), vec_splat_u8(7));
     vu8 align_in;
     size_t alignment;
-    size_t eidx;
+    const unsigned char *in_epi;
 
     vu32 AC = sip_w_iv[0]; /* initialized as [a b] */
     vu32 BD = sip_w_iv[1]; /*                [c d] */
@@ -170,16 +170,16 @@ u64 siphash_2_4(const void *in, size_t len, const unsigned char key[16])
 
     /* Already prepare the epilogue of 0-7 bytes and (len & 255)
      * so it is ready to vec_ld without stall at the end */
-    eidx = len & ~7;
+    in_epi = (const unsigned  char *)in + (len & ~7);
     switch (len & 7) {
-        case 7: m[1] |= (u64)*((unsigned char *)in+eidx+6) << 16;
-        case 6: m[1] |= (u64)*((unsigned char *)in+eidx+5) <<  8;
-        case 5: m[1] |= (u64)*((unsigned char *)in+eidx+4);
+        case 7: m[1] |= (u64) in_epi[6] << 16;
+        case 6: m[1] |= (u64) in_epi[5] <<  8;
+        case 5: m[1] |= (u64) in_epi[4];
                 m[1] <<= 32;
-        case 4: m[1] |= (u64)*((unsigned char *)in+eidx+3) << 24;
-        case 3: m[1] |= (u64)*((unsigned char *)in+eidx+2) << 16;
-        case 2: m[1] |= (u64)*((unsigned char *)in+eidx+1) << 8;
-        case 1: m[1] |= (u64)*((unsigned char *)in+eidx+0);
+        case 4: m[1] |= (u64) in_epi[3] << 24;
+        case 3: m[1] |= (u64) in_epi[2] << 16;
+        case 2: m[1] |= (u64) in_epi[1] << 8;
+        case 1: m[1] |= (u64) in_epi[0];
         case 0: break;
     }
     m[1] |= (u64)(len & 255) << 56;
@@ -208,7 +208,7 @@ u64 siphash_2_4(const void *in, size_t len, const unsigned char key[16])
 
     /* Take care for the last 8 full bytes.
      * This is only tricky if alignment <= 8, and we can't read further */
-    if (eidx & 8) {
+    if (len & 8) {
         size_t j = len & ~15;
         vu32 msg_16;
         vu32 low = vec_ld(j, (u32 *)in);
