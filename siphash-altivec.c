@@ -170,7 +170,7 @@ u64 siphash_2_4(const void *in, size_t len, const unsigned char key[16])
 
     /* Already prepare the epilogue of 0-7 bytes and (len & 255)
      * so it is ready to vec_ld without stall at the end */
-    in_epi = (const unsigned  char *)in + (len & ~7);
+    in_epi = (const unsigned  char *)in + (len & ~(size_t)7);
     switch (len & 7) {
         case 7: m[1] |= (u64) in_epi[6] << 16;
         case 6: m[1] |= (u64) in_epi[5] <<  8;
@@ -209,7 +209,7 @@ u64 siphash_2_4(const void *in, size_t len, const unsigned char key[16])
     /* Take care for the last 8 full bytes.
      * This is only tricky if alignment <= 8, and we can't read further */
     if (len & 8) {
-        size_t j = len & ~15;
+        size_t j = len & ~(size_t)15;
         vu32 msg_16;
         vu32 low = vec_ld(j, (u32 *)in);
         if (alignment <= 8)

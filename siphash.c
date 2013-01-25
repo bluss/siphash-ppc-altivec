@@ -46,7 +46,7 @@ static void siphash_init(uint64_t v[5], const unsigned char key[16])
 /* Load the last 0-7 bytes of `in` and put in len & 255 */
 static void siphash_epilogue(uint64_t *m, const unsigned char *in, size_t len)
 {
-    in += len & ~7;
+    in += len & ~(size_t)7;
     *m = (uint64_t)(len & 255) << 56;
     switch (len & 7) {
         case 7: *m |= (uint64_t) in[6] << 48;
