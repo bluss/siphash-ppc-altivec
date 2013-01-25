@@ -27,10 +27,11 @@ enum sip_index { A=0, B=2, C=1, D=3, E=4 };
         SIP_HALF_ROUND((W)[C], (W)[B], (W)[A], (W)[D], 17, 21); \
     } while(0)
 
-static inline uint64_t W64(const void *p, size_t I)
+
+static inline uint64_t W64(const unsigned char *p, size_t j)
 {
     uint64_t x;
-    memcpy(&x, (char *)p + I*sizeof(x), sizeof(x));
+    memcpy(&x, p + j*sizeof(x), sizeof(x));
     return le64toh(x);
 }
 
@@ -64,10 +65,11 @@ static void siphash_epilogue(uint64_t *m, const unsigned char *in, size_t len)
 uint64_t siphash_2_4(const void *in, size_t len, const unsigned char key[16])
 {
     uint64_t v[5];
+    size_t j;
 
     siphash_init(v, key);
 
-    for (size_t j = 0; j < len/8; j++) {
+    for (j = 0; j < len/8; j++) {
         v[E] = W64(in, j);
         v[D] ^= v[E];
         SIP_ROUND(v);
