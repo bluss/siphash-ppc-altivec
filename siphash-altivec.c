@@ -8,6 +8,9 @@
 #define ALIGNED(X)
 #endif
 
+typedef uint32_t u32;
+typedef uint64_t u64;
+
 typedef vector unsigned int vu32;
 typedef vector unsigned char vu8;
 
